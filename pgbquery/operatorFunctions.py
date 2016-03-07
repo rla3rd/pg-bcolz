@@ -1,12 +1,10 @@
 ## This is the Multicorn ForeignDataWrapper to convert strings with PostgreSQL operators in them to functions.
-## taken from https://github.com/rotten/rethinkdb-multicorn-postgresql-fdw
+##  based on  from https://github.com/rotten/rethinkdb-multicorn-postgresql-fdw
 ## R.Otten - 2014
-
-
-# I should take these functions and turn it into a class that inherits operator ( if its a class )
+## R.Albright 2016
 
 import operator
-import re
+import re2 as re
 
 ## We throw this if we encounter an operator that we don't know what to do with:
 class unknownOperatorException(Exception):
@@ -21,14 +19,8 @@ class unknownOperatorException(Exception):
 ################################################################################
 ### Custom functions to implement some of the operators:
 def reverseContains(a, b):
-    return operator.contains(b, a)
-
-def strictlyLeft(a, b):
-    return max(a) < min(b)
-
-def strictlyRight(a, b):
-    return min(a) > max(b)
-
+    operator.contains(b,a)
+    
 def rightBounded(a, b):
     return max(a) <= max(b)
 
@@ -80,55 +72,38 @@ def notLikeSearch_i(a, b):
     b.replace('_', '.')
     return not regexSearch_i(a, b)
 
+opMap = { 
+  '@>':         operator.contains,
+  '<@':         reverseContains,
+  '&<':         rightBounded,
+  '>&':         leftBounded,
+  '&&':         overlap,
+   '~':          regexSearch,
+  '~*':         regexSearch_i,
+  '!~':         notRegexSearch,
+  '!~*':        notRegexSearch_i,
+  '~~':         likeSearch,
+  '!~~':        notLikeSearch,
+  'like':       likeSearch,
+  'not like':   notLikeSearch,
+  '~~*':        likeSearch_i,
+  '!~~*':       notLikeSearch_i,
+  'ilike':      likeSearch_i,
+  'not ilike':  likeSearch_i,
+  'similar to': regexSearch,
+  'not similar to': notRegexSearch
+}
+
 
 ################################################################################
 ### The main function we use external to this file:
 ## Translate a string with an operator in it (eg. ">=") into a function.
 ##
-## Not supported (yet -- feel free to add more support!):
-##    "between" -- it isn't clear if we'll get those.
-##    "OR"      -- it isnt' clear if we'll get those.
-##    Geometric Operators
-##    Text Search Operators
-##    Network Address Operators
-##    JSON Operators
-##    The Array operators when used on Ranges
-## 
+## we only do those that are not directly supported by numexpr
+
 def getOperatorFunction(opr):
 
-  operatorFunctionMap = {
-      '<':          operator.lt,
-      '>':          operator.gt,
-      '<=':         operator.le,
-      '>=':         operator.ge,
-      '=':          operator.eq,
-      '<>':         operator.ne,
-      '!=':         operator.ne,
-      '@>':         operator.contains,
-      '<@':         reverseContains,
-      '<<':         strictlyLeft,
-      '>>':         strictlyRight,
-      '&<':         rightBounded,
-      '>&':         leftBounded,
-      '&&':         overlap,
-      'is':         operator.eq, # this one won't work in every sql context, but should for some cases
-      '~':          regexSearch,
-      '~*':         regexSearch_i,
-      '!~':         notRegexSearch,
-      '!~*':        notRegexSearch_i,
-      '~~':         likeSearch,
-      '!~~':        notLikeSearch,
-      'like':       likeSearch,
-      'not like':   notLikeSearch,
-      '~~*':        likeSearch_i,
-      '!~~*':       notLikeSearch_i,
-      'ilike':      likeSearch_i,
-      'not ilike':  likeSearch_i,
-      'similar to': regexSearch,
-      'not similar to': notRegexSearch
-  }
-
-  if not operatorFunctionMap.has_key(opr):
+  if not opMap.has_key(opr):
       raise unknownOperatorException("'%s' is not a supported operator." % opr)
 
-  return operatorFunctionMap[opr]
+  return opMap[opr]
