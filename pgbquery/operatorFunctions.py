@@ -4,7 +4,10 @@
 ## R.Albright 2016
 
 import operator
-import re2 as re
+try:
+    import re2 as re
+except:
+    import re
 
 ## We throw this if we encounter an operator that we don't know what to do with:
 class unknownOperatorException(Exception):

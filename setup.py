@@ -3,7 +3,7 @@ from setuptools import setup, find_packages, Extension
 
 setup(
         name='pgbquery',
-        version='0.0.1',
+        version='0.0.2',
         author='Rick Albright',
         license='BSD',
         description='A query and aggregation framework for Bcolz ans Postgresql',
@@ -26,6 +26,6 @@ setup(
 	  Pandas aggregations.
 
     """,
-        install_requires=['bcolz', 'bquery', 'multicorn'], #, 're2'],
+        install_requires=['bcolz', 'bquery', 'multicorn'],
         packages=find_packages()
 )

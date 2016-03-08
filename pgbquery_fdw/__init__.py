@@ -32,28 +32,37 @@ class BqueryForeignDataWrapper(ForeignDataWrapper):
     def execute(self, quals, columns):
         filters = []
         for qual in quals:
-            filters.append("('%s', '%s', '%s'))" % (qual.field_name, qual.value))
-            
-        whereStr = "&".join(filters)
-
-        # loop thru the xrange results below? how?
-                                
-        for idx in self.table.where_terms(whereStr):
-            line = {}
-            for name in self.columns:
-                line[name] = self.table[name][idx]
+        
+            if not qual.is_list_operator:
+                if type(qual.value) == str:
+                    value = "'%s'" % qual.value
+                else:
+                    value = qual.value
+                filters.append((str(qual.field_name), str(qual.operator), str(value)))
+            else:
+                ANY = object()
+                ALL = object()
+                op = qual.operator[0]
+                optype = qual.operator[1]
+                if op in ('=', '==') and optype == ANY:
+                    operator = 'IN'
+                if op in ('!=', '<>') and optype == ANY:
+                    operator = 'NOT IN'
+                    filters.append((qual.fieldname, operator, qual.value))
+                
+        boolarr = self.table.where_terms(filters)
+        for line in self.test.where(boolarr, outcols=self.test.names):
             yield line
-            
     
     def get_rel_size(self, quals, columns):
-      
-	filters = []
+        pass
+	#filters = []
 	
         # qual object is qual.field_name, qual.operator, qual.value
-	for qual in quals:
+	#for qual in quals:
 	
-	rows = self.table[[filter]].size
-	nb = self.table[[filter]].nbytes
+	#rows = self.table[[filter]].size
+	#nb = self.table[[filter]].nbytes
 	
 	
 	
