@@ -1,2 +1,1 @@
-# pg-bcolz
-# pg-bcolz
+# pgbquery
