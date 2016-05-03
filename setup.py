@@ -6,7 +6,7 @@ setup(
         version='0.0.2',
         author='Rick Albright',
         license='BSD',
-        description='A query and aggregation framework for Bcolz ans Postgresql',
+        description='A query and aggregation framework for Bcolz and Postgresql',
 	long_description="""\
 	  Bcolz is a light weight package that provides columnar, chunked data 
 	  containers that can be compressed either in-memory and on-disk. 
