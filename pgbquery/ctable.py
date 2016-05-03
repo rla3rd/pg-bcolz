@@ -1,6 +1,8 @@
 import bquery
+import numpy as np
+import pandas as pd
 from operatorFunctions import opMap, getOperatorFunction
-
+   
 class ctable(bquery.ctable):
     def where_terms(self, term_list):
         """
@@ -35,7 +37,7 @@ class ctable(bquery.ctable):
             elif filter_operator == '<>':
                 filter_operator = '!='
 
-            if filter_operator not in ['in', 'not in'] or filter_operator not in opMap:
+            if filter_operator not in ['in', 'not in'] and filter_operator not in opMap:
                 # direct filters should be added to the eval_string
 
                 # add and logic if not the first term
@@ -45,6 +47,8 @@ class ctable(bquery.ctable):
                 eval_string += '(' + filter_col + ' ' \
                                + filter_operator + ' ' \
                                + str(filter_value) + ')'
+                        
+                print eval_string
 
             elif filter_operator in opMap:
                 eval_list.append(
@@ -138,7 +142,7 @@ class ctable(bquery.ctable):
 
         if eval_list:
             # convert boolarr back to carray
-            boolarr = bcolz.carray(boolarr)
+            boolarr = bquery.carray(boolarr)
 
         return boolarr
 

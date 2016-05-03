@@ -4,6 +4,7 @@
 ## R.Albright 2016
 
 import operator
+import pandas as pd
 try:
     import re2 as re
 except:
@@ -74,8 +75,14 @@ def notLikeSearch_i(a, b):
     b.replace('%%', '.*')
     b.replace('_', '.')
     return not regexSearch_i(a, b)
-
-opMap = { 
+    
+opMap = {
+  'eq':		operator.eq,
+  'ne':		operator.ne,
+  'gt':		operator.gt,
+  'ge':		operator.ge,
+  'lt':		operator.lt,
+  'le':	    operator.le, 
   '@>':         operator.contains,
   '<@':         reverseContains,
   '&<':         rightBounded,

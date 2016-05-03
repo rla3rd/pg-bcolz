@@ -50,9 +50,13 @@ class BqueryForeignDataWrapper(ForeignDataWrapper):
                     operator = 'NOT IN'
                     filters.append((qual.fieldname, operator, qual.value))
                 
-        boolarr = self.table.where_terms(filters)
-        for line in self.test.where(boolarr, outcols=self.test.names):
-            yield line
+            if len(quals) > 0:            
+                boolarr = test.where_terms(filters)
+                for line in test.where(boolarr, outcols=test.names):
+                    yield line
+            else:
+                for line in test.__iter__():
+                    yield line
     
     def get_rel_size(self, quals, columns):
         pass
