@@ -3,7 +3,7 @@ from setuptools import setup, find_packages, Extension
 
 setup(
         name='pgbquery',
-        version='0.0.2',
+        version='0.0.4',
         author='Rick Albright',
         license='BSD',
         description='A query and aggregation framework for Bcolz and Postgresql',
